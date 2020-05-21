@@ -23,4 +23,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: sonar-flutter-plugin-artifact
-        path: sonar-flutter-plugin/target/*
+        path: sonar-flutter-plugin/target
