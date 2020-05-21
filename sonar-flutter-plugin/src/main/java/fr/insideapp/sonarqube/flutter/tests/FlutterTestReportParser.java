@@ -54,42 +54,44 @@ public class FlutterTestReportParser {
             String line = lines[i];
             JSONObject obj = (JSONObject)JSONValue.parse(line);
 
-            // Suites
-            if (obj.containsKey("suite")) {
-                JSONObject suiteObj = (JSONObject) obj.get("suite");
-                FlutterUnitTestSuite suite = new FlutterUnitTestSuite();
-                suite.setId((Long)suiteObj.get("id"));
-                suite.setPath((String)suiteObj.get("path"));
-                results.add(suite);
-            }
+            if (obj != null) {
 
-            // Tests
-            if (obj.containsKey("test")) {
-                JSONObject testObj = (JSONObject) obj.get("test");
-                FlutterUnitTest testResult = new FlutterUnitTest();
-                testResult.setName((String)testObj.get("name"));
-                testResult.setId((Long)testObj.get("id"));
-                tests.add(testResult);
-
-                Long suiteId = (Long)testObj.get("suiteID");
-                Optional<FlutterUnitTestSuite> suite = results.stream().filter(s -> s.getId().equals(suiteId)).findFirst();
-                if (suite.isPresent()) {
-                    suite.get().getTests().add(testResult);
+                // Suites
+                if (obj.containsKey("suite")) {
+                    JSONObject suiteObj = (JSONObject) obj.get("suite");
+                    FlutterUnitTestSuite suite = new FlutterUnitTestSuite();
+                    suite.setId((Long)suiteObj.get("id"));
+                    suite.setPath((String)suiteObj.get("path"));
+                    results.add(suite);
                 }
-            }
 
-            // Test finished
-            if (obj.containsKey("testID") && obj.containsKey("result")) {
-                Long testId = (Long)obj.get("testID");
-                Optional<FlutterUnitTest> test = tests.stream().filter(t -> t.getId().equals(testId)).findFirst();
-                if (test.isPresent()) {
-                    test.get().setResult((String)obj.get("result"));
-                    test.get().setTime((Long)obj.get("time"));
-                    test.get().setSkipped((Boolean) obj.get("skipped"));
+                // Tests
+                if (obj.containsKey("test")) {
+                    JSONObject testObj = (JSONObject) obj.get("test");
+                    FlutterUnitTest testResult = new FlutterUnitTest();
+                    testResult.setName((String)testObj.get("name"));
+                    testResult.setId((Long)testObj.get("id"));
+                    tests.add(testResult);
+
+                    Long suiteId = (Long)testObj.get("suiteID");
+                    Optional<FlutterUnitTestSuite> suite = results.stream().filter(s -> s.getId().equals(suiteId)).findFirst();
+                    if (suite.isPresent()) {
+                        suite.get().getTests().add(testResult);
+                    }
                 }
+
+                // Test finished
+                if (obj.containsKey("testID") && obj.containsKey("result")) {
+                    Long testId = (Long)obj.get("testID");
+                    Optional<FlutterUnitTest> test = tests.stream().filter(t -> t.getId().equals(testId)).findFirst();
+                    if (test.isPresent()) {
+                        test.get().setResult((String)obj.get("result"));
+                        test.get().setTime((Long)obj.get("time"));
+                        test.get().setSkipped((Boolean) obj.get("skipped"));
+                    }
+                }
+
             }
-
-
         }
 
         return results;
